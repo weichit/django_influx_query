@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_content %}
+<!--script src= 
+"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> 
+</script> 
+<script> 
+    $(document).ready(function() { 
+        $("#submit").click(function() {  
+            var value = $("#selectedques").val();
+            value += "where location = '";
+            value += $("#selectedtag option:selected");
+            value += "' ";
+            alert(value.text()); 
+        }); 
+    }); 
+</script--> 
+<style> 
+    .rightchart {
+        margin: 0 auto;
+    }
+</style>
+<h1>Submit a Query</h1><br>
+<div class="row">
+    <div class="col-md-4" style="background: -webkit-linear-gradient(#9adff8, #e5e0ff);">
+        <h5>Choose one from the selected queries</h5>
+        <form action="/projects/query/" method="GET">
+            {% csrf_token %}
+            <!--select id="selectedques">
+                <option disabled="true" selected>--Choose your query--</option>
+                <option value=questions[0]>Get average temperature</option>
+                <option value=questions[1]>Get water pH</option>
+                <option value=questions[2]>Get water temperature</option>
+            </select-->
+            {{ form }}
+            <br>
+            <br>
+            <!--select id="selectedtag">
+                <option disabled="true" selected>--Choose your filter--</option>
+                {% for element in nametag %}
+                <option>{{ element }}</option>
+                {% endfor %}
+            </select-->
+            {{ tags }}
+            <br><br>
+            <input type="submit" value="Click">
+        </form>
+        <!--select id="selectedtag">
+            <option disabled="true" selected>--Choose your query--</option>
+            {% for element in nametag %}
+            <option>{{ element }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <br>
+        <input type="submit" value="Click"/-->
+        <!--a href="{% url 'project_query' %}"
+            class="btn btn-primary">
+            Check Historical Data
+        </a-->
+        <hr>
+    </div>
+    <div class="col-md-8">
+        {% if plot == 0 %}
+        Waiting for your query
+        {% elif plot == 1 %}
+        <div class="rightchart">
+            <div id="container" class="container" style="display: inline; margin: 0 auto"></div>
+            <script src="https://code.highcharts.com/highcharts.src.js"></script>
+            <script src="https://code.highcharts.com/modules/data.js"></script>
+            <script src="https://code.highcharts.com/modules/exporting.js"></script>
+            <script src="https://code.highcharts.com/modules/export-data.js"></script>
+            <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+            <script type="text/javascript">
+            Highcharts.setOptions({
+                colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4']
+            });
+            Highcharts.chart('container', {
+                chart: { zoomType: 'x'},
+                time: { timezone: 'Singapore'}, 
+                title: { text: 'Plot time-series data from local InfluxDB'},
+                subtitle: {
+                    text: document.ontouchstart === undefined ? 
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+                },
+                xAxis: { 
+                    type: 'datetime', 
+                    labels: {
+					    formatter:function(){
+						    return Highcharts.dateFormat('%e-%b-%H:%M',this.value);
+					    },
+				    },
+                },
+                yAxis: {
+                    title: { text: 'Value'}
+                },
+                legend: { enabled: false},
+                plotOptions: {
+                    area: {
+                        fillColor: {
+                            linearGradient: {
+                                x1: 0,
+                                y1: 0,
+                                x2: 0,
+                                y2: 1
+                            },
+                            stops: [
+                                [0, Highcharts.getOptions().colors[0]],
+                                [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                            ]
+                        },
+                        lineColor:Highcharts.getOptions().colors[0],
+                        marker: {
+                            fillColor: Highcharts.getOptions().colors[0],
+                            radius: 2
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        threshold: null
+                    }
+                },
+                series: [{
+                    type: 'area',
+                    name: 'Value',
+                    data: {{ plot_data }}
+                }]
+            });
+            </script>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
